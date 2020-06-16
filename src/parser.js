@@ -1,6 +1,7 @@
 import { DOMParser } from 'xmldom'
 import cssParse from 'css-parse-no-fs'
 import converter from './converter'
+import {connect} from 'react-redux';
 
 /**
  * 2nd argument can be a set of config elements passed to domParser e.g.:
@@ -45,8 +46,8 @@ function makeCssAst (cssString) {
  * @param CssAst cssAst
  * @param Object config
  */
-function convertSvg (svgDom, cssAst, config) {
-  return converter(svgDom, cssAst, config)
+function convertSvg (svgDom, cssAst, config, onPress, colorsMap) {
+  return converter(svgDom, cssAst, config, onPress,colorsMap)
 }
 
 export { parseSvg, makeCssAst, convertSvg }
@@ -59,11 +60,20 @@ export { parseSvg, makeCssAst, convertSvg }
  * @param String svgString
  * @param Object config
  */
-export default (svgString, cssString, config = {}) => {
+export default ({svgString, cssString, config = {},onPress, colorsMap}) => {
+// const Parser = ({svgString, cssString, config = {},onPress, colorsMap}) => {
   const svgNodes = convertSvg(
     parseSvg(svgString, config.DOMParser || {}),
     makeCssAst(cssString),
-    config
+    config,
+      onPress,
+      colorsMap
   )
   return svgNodes
 }
+
+// const mapStateToProps = (state) => {
+//   const {colorsMap} = state.SvgModuleReducer;
+//   return {colorsMap};
+// };
+// export default connect(mapStateToProps, {})(Parser);

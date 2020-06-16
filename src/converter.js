@@ -50,8 +50,10 @@ function extractViewbox (markup) {
   }
 
   return {
-    width: `${vbSplits[2]}`,
-    height: `${vbSplits[3]}`,
+    // width: `${vbSplits[2]}`,
+    // height: `${vbSplits[3]}`,
+    width:'100%',
+    height:'100%',
     viewBox: viewBox.value
   }
 }
@@ -90,7 +92,9 @@ function addNonCssAttributes (markup, cssPropsResult) {
       return
     }
 
-    const propertyName = camelCase(attr.name)
+    //eq. xlixnk:href - name='xlixnk:href', localName='href' - so we should use localName
+    // const propertyName = camelCase(attr.name)
+    const propertyName = camelCase(attr.localName)
     if (propertyName === 'class' || propertyName === 'id') {
       return
     }
@@ -136,7 +140,13 @@ function findId (markup) {
   return id && id.value
 }
 
-function traverse (markup, config, i = 0) {
+function findFill (markup) {
+  const id = Object.values(markup.attributes).find((attr) => attr.name === 'fill')
+  return id && id.value
+}
+
+function traverse (markup, config, i = 0, onPress, colorsMap) {
+
   if (!markup || !markup.nodeName || !markup.tagName) {
     return null
   }
@@ -145,6 +155,9 @@ function traverse (markup, config, i = 0) {
   if (idName && config.omitById && config.omitById.includes(idName)) {
     return null
   }
+
+  const elementRef = React.createRef();
+
 
   let attrs = []
   if (tagName === 'svg') {
@@ -161,12 +174,32 @@ function traverse (markup, config, i = 0) {
       name: 'viewBox',
       value: config.viewBox || viewBox.viewBox || '0 0 50 50'
     })
+  } if (tagName === 'g') {
+    attrs.push({
+      name: 'onPress',
+      value: ()=>onPress(idName, elementRef)
+    })
   } else {
     // otherwise, if not SVG, check to see if there is CSS to apply.
+    // const cssPropsResult = { cssProps:[], attrs:[] };//findApplicableCssProps(markup, config)
     const cssPropsResult = findApplicableCssProps(markup, config)
     const additionalProps = addNonCssAttributes(markup, cssPropsResult)
+
+
+    attrs.push({
+      name: 'onPress',
+      value: ()=>onPress(idName, elementRef)
+    })
+    const fill = findFill(markup)
+    const forcedColor = colorsMap.has(idName) ? colorsMap.get(idName):null
+    attrs.push({
+      name: 'fill',
+      value: forcedColor ? forcedColor : fill
+    })
+
     // add to the known list of total attributes.
-    attrs = [...attrs, ...cssPropsResult.attrs, ...additionalProps]
+    // attrs = [...attrs, ...cssPropsResult.attrs, ...additionalProps]
+    attrs = [...cssPropsResult.attrs, ...additionalProps, ...attrs]
   }
 
   // map the tag to an element.
@@ -180,7 +213,7 @@ function traverse (markup, config, i = 0) {
   const children = (Elem === Text && markup.childNodes.length === 1)
     ? markup.childNodes[0].data
     : markup.childNodes.length ? Object.values(markup.childNodes).map((child) => {
-      return traverse(child, config, ++i)
+      return traverse(child, config, ++i, onPress, colorsMap)
     }).filter((node) => {
       return !!node
     }) : []
@@ -191,14 +224,35 @@ function traverse (markup, config, i = 0) {
   })
 
   const k = i + Math.random()
-  return <Elem {...elemAttributes} key={k}>{ children }</Elem>
+  return <Elem ref={elementRef} {...elemAttributes} key={k}>{ children }</Elem>
 }
 
 export { extractViewbox, getCssRulesForAttr, findApplicableCssProps, addNonCssAttributes }
 
-export default (dom, cssAst, config) => {
+export default (dom, cssAst, config, onPress,colorsMap) => {
   config = Object.assign({}, config, {
     cssRules: (cssAst && cssAst.stylesheet && cssAst.stylesheet.rules) || []
   })
-  return traverse(dom.documentElement, config)
+  return traverse(dom.documentElement, config, 0,onPress,colorsMap)
 }
+
+
+// export default (dom, cssAst, config, onPress, colors) => {
+// const Converter = ({dom, cssAst, config, onPress, colors}) => {
+// const Konverter = (dom, cssAst, config, onPress, colors) => {
+//   config = Object.assign({}, config, {
+//     cssRules: (cssAst && cssAst.stylesheet && cssAst.stylesheet.rules) || []
+//   })
+//   return traverse(dom.documentElement, config, 0,onPress, colors)
+// }
+
+
+
+// const mapStateToProps = (state) => {
+//   const { colors } = state.SvgModuleReducer;
+//   return { colors };
+// };
+// const mapDispatchToProps = (dispatch) =>
+//     bindActionCreators({ clickElement }, dispatch);
+// export default connect(mapStateToProps, {})(Konverter);
+// export default Converter;
