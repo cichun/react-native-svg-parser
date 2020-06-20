@@ -1,5 +1,7 @@
 import React from 'react'
 import camelCase from 'camelcase'
+import cssParse from 'css-parse-no-fs'
+
 
 import Svg, {
   Circle,
@@ -16,7 +18,7 @@ import Svg, {
   Text,
   Use,
   Defs,
-  Stop
+  Stop,
 } from 'react-native-svg'
 
 const mapping = {
@@ -58,6 +60,17 @@ function extractViewbox (markup) {
   }
 }
 
+function getRulesForClass(cssRules, className) {
+  const rules = cssRules.filter((rule) => {
+    if (rule.selectors.indexOf('.'+className) > -1) {
+      return true
+    } else {
+      return false
+    }
+  })
+  return rules;
+}
+
 function getCssRulesForAttr (attr, cssRules) {
   let rules = []
   if (attr.name === 'id') {
@@ -71,14 +84,17 @@ function getCssRulesForAttr (attr, cssRules) {
       }
     })
   } else if (attr.name === 'class') {
-    const className = '.' + attr.value
-    rules = cssRules.filter((rule) => {
-      if (rule.selectors.indexOf(className) > -1) {
-        return true
-      } else {
-        return false
+    const classesList = attr.value.split(' ');
+
+    classesList.forEach((className) => {
+      const classRules = getRulesForClass(cssRules, className);
+      if(classRules.length>0) {
+        rules = rules.concat(classRules);
       }
     })
+  } else if (attr.name==='style') {
+    const styleProp = cssParse('stylePropInline{'+attr.value+'}');
+    rules = styleProp.stylesheet.rules;
   }
 
   return rules
@@ -185,21 +201,22 @@ function traverse (markup, config, i = 0, onPress, colorsMap) {
     const cssPropsResult = findApplicableCssProps(markup, config)
     const additionalProps = addNonCssAttributes(markup, cssPropsResult)
 
-
-    attrs.push({
+    additionalProps.push({
       name: 'onPress',
       value: ()=>onPress(idName, elementRef)
     })
-    const fill = findFill(markup)
+    // const fill = findFill(markup)
     const forcedColor = colorsMap.has(idName) ? colorsMap.get(idName):null
-    attrs.push({
-      name: 'fill',
-      value: forcedColor ? forcedColor : fill
-    })
+    if(forcedColor) {
+      additionalProps.push({
+        name: 'fill',
+        value: forcedColor ? forcedColor : fill
+      })
+    }
+
 
     // add to the known list of total attributes.
-    // attrs = [...attrs, ...cssPropsResult.attrs, ...additionalProps]
-    attrs = [...cssPropsResult.attrs, ...additionalProps, ...attrs]
+    attrs = [...attrs, ...cssPropsResult.attrs, ...additionalProps]
   }
 
   // map the tag to an element.

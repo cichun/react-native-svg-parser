@@ -60,12 +60,13 @@ export { parseSvg, makeCssAst, convertSvg }
  * @param String svgString
  * @param Object config
  */
-export default ({svgString, cssString, config = {},onPress, colorsMap}) => {
+export default (svgString, cssString, config = {}, onPress, colorsMap) => {
+// export default ({svgString, cssString, config = {}, onPress, colorsMap}) => {
 // const Parser = ({svgString, cssString, config = {},onPress, colorsMap}) => {
   const svgNodes = convertSvg(
-    parseSvg(svgString, config.DOMParser || {}),
-    makeCssAst(cssString),
-    config,
+      parseSvg(svgString, config.DOMParser || {}),
+      makeCssAst(cssString),
+      config,
       onPress,
       colorsMap
   )
