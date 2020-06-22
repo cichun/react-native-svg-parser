@@ -161,6 +161,11 @@ function findFill (markup) {
   return id && id.value
 }
 
+function findProperty (markup, propertyName) {
+  const id = Object.values(markup.attributes).find((attr) => attr.name === propertyName)
+  return id && id.value
+}
+
 function traverse (markup, config, i = 0, onPress, colorsMap) {
 
   if (!markup || !markup.nodeName || !markup.tagName) {
@@ -190,21 +195,26 @@ function traverse (markup, config, i = 0, onPress, colorsMap) {
       name: 'viewBox',
       value: config.viewBox || viewBox.viewBox || '0 0 50 50'
     })
-  } if (tagName === 'g') {
-    attrs.push({
-      name: 'onPress',
-      value: ()=>onPress(idName, elementRef)
-    })
+  } else if (tagName === 'g') {
+    // if(idName) {
+    //   attrs.push({
+    //     name: 'onPress',
+    //     value: () => onPress(idName, elementRef)
+    //   })
+    // }
   } else {
     // otherwise, if not SVG, check to see if there is CSS to apply.
     // const cssPropsResult = { cssProps:[], attrs:[] };//findApplicableCssProps(markup, config)
     const cssPropsResult = findApplicableCssProps(markup, config)
     const additionalProps = addNonCssAttributes(markup, cssPropsResult)
+    const className = findProperty(markup,'class')
 
-    additionalProps.push({
-      name: 'onPress',
-      value: ()=>onPress(idName, elementRef)
-    })
+    if(idName && className && className.includes('circle')) {
+      additionalProps.push({
+        name: 'onPress',
+        value: () => onPress(idName, elementRef)
+      })
+    }
     // const fill = findFill(markup)
     const forcedColor = colorsMap.has(idName) ? colorsMap.get(idName):null
     if(forcedColor) {
