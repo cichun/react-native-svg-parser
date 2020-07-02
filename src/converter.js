@@ -173,7 +173,7 @@ class Traverse extends React.Component {
   }
 
   render() {
-    const {markup, config, i = 0, onPress, colorsMap} = this.props;
+    const {markup, config, i = 0, onPress} = this.props;
 
     if (!markup || !markup.nodeName || !markup.tagName) {
       return null
@@ -235,8 +235,7 @@ class Traverse extends React.Component {
     const children = (Elem === Text && markup.childNodes.length === 1)
         ? markup.childNodes[0].data
         : markup.childNodes.length ? Object.values(markup.childNodes).map((child) => {
-          // return traverse(child, config, ++i, onPress, colorsMap)
-          return <Traverse markup={child} config={config} i={i+1} key={i+1+Math.random()} onPress={onPress} colorsMap={colorsMap}/>
+          return <Traverse markup={child} config={config} i={i+1} key={i+1+Math.random()} onPress={onPress} />
         }).filter((node) => {
           return !!node
         }) : []
@@ -253,10 +252,10 @@ class Traverse extends React.Component {
 
 export { extractViewbox, getCssRulesForAttr, findApplicableCssProps, addNonCssAttributes }
 
-export default (dom, cssAst, config, onPress,colorsMap) => {
+export default (dom, cssAst, config, onPress) => {
   config = Object.assign({}, config, {
     cssRules: (cssAst && cssAst.stylesheet && cssAst.stylesheet.rules) || []
   })
-  return <Traverse markup={dom.documentElement} config={config} i={0} onPress={onPress} colorsMap={colorsMap}/>
-  // return traverse(dom.documentElement, config, 0,onPress,colorsMap)
+  return <Traverse markup={dom.documentElement} config={config} i={0} onPress={onPress}/>
+  // return traverse(dom.documentElement, config, 0,onPress)
 }

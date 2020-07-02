@@ -46,8 +46,8 @@ function makeCssAst (cssString) {
  * @param CssAst cssAst
  * @param Object config
  */
-function convertSvg (svgDom, cssAst, config, onPress, colorsMap) {
-  return converter(svgDom, cssAst, config, onPress,colorsMap)
+function convertSvg (svgDom, cssAst, config, onPress) {
+  return converter(svgDom, cssAst, config, onPress)
 }
 
 export { parseSvg, makeCssAst, convertSvg }
@@ -60,15 +60,14 @@ export { parseSvg, makeCssAst, convertSvg }
  * @param String svgString
  * @param Object config
  */
-export default (svgString, cssString, config = {}, onPress, colorsMap) => {
-// export default ({svgString, cssString, config = {}, onPress, colorsMap}) => {
-// const Parser = ({svgString, cssString, config = {},onPress, colorsMap}) => {
+export default (svgString, cssString, config = {}, onPress) => {
+// export default ({svgString, cssString, config = {}, onPress}) => {
+// const Parser = ({svgString, cssString, config = {}, onPress}) => {
   const svgNodes = convertSvg(
       parseSvg(svgString, config.DOMParser || {}),
       makeCssAst(cssString),
       config,
-      onPress,
-      colorsMap
+      onPress
   )
   return svgNodes
 }
