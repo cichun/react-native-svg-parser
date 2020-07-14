@@ -1,7 +1,9 @@
 import React from 'react'
 import camelCase from 'camelcase'
 import cssParse from 'css-parse-no-fs'
-
+import {registerElementRefForId, clickElement} from './actions/SvgModuleActionCreator'
+import {connect} from 'react-redux';
+import {bindActionCreators} from "redux";
 
 import Svg, {
   Circle,
@@ -218,6 +220,7 @@ class Traverse extends React.Component {
           name: 'onPress',
           value: () => onPress(idName, this.elementRef)
         })
+        this.props.registerElementRefForId(this.elementRef,idName);
       }
 
       // add to the known list of total attributes.
@@ -235,7 +238,7 @@ class Traverse extends React.Component {
     const children = (Elem === Text && markup.childNodes.length === 1)
         ? markup.childNodes[0].data
         : markup.childNodes.length ? Object.values(markup.childNodes).map((child) => {
-          return <Traverse markup={child} config={config} i={i+1} key={i+1+Math.random()} onPress={onPress} />
+          return <TraverseConnected markup={child} config={config} i={i+1} key={i+1+Math.random()} onPress={onPress} />
         }).filter((node) => {
           return !!node
         }) : []
@@ -250,12 +253,35 @@ class Traverse extends React.Component {
   }
 }
 
+const TraverseConnected = connect(null, {registerElementRefForId})(Traverse);
+
+
+
+
 export { extractViewbox, getCssRulesForAttr, findApplicableCssProps, addNonCssAttributes }
 
-export default (dom, cssAst, config, onPress) => {
+// export default (dom, cssAst, config, onPress) => {
+const Converter = ({dom, cssAst, config, onPress}) => {
   config = Object.assign({}, config, {
     cssRules: (cssAst && cssAst.stylesheet && cssAst.stylesheet.rules) || []
   })
-  return <Traverse markup={dom.documentElement} config={config} i={0} onPress={onPress}/>
+  return <TraverseConnected markup={dom.documentElement} config={config} i={0} onPress={onPress} />
   // return traverse(dom.documentElement, config, 0,onPress)
 }
+export default Converter;
+
+
+// const mapStateToProps = (state) => {
+//   const {idToElementRef} = state.SvgModuleReducer;
+//   return {idToElementRef};
+// };
+// const mapDispatchToProps = dispatch =>
+//     bindActionCreators(
+//         {
+//           registerElementRefForId
+//         },
+//         dispatch
+//     );
+// export default connect(mapStateToProps, {clickElement})(Converter);
+
+
