@@ -10,6 +10,12 @@ export const registerElementRefForId = (elementRef, id) => ({
     payload: {elementRef, id}
 });
 
+export const setSparepartsData = (sparepartsData) => ({
+    type: actionTypes.SET_SPAREPARTS_DATA,
+    payload: sparepartsData
+});
+
+
 // export const restTimer = (newCounterValue) => {
 //   return {
 //     type: actionTypes.SET_COUNTER_VALUE_TO,

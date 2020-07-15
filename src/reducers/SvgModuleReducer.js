@@ -1,13 +1,12 @@
+import React from "react";
 import * as actionTypes from '../actions/types';
 import extractBrush from 'react-native-svg/lib/module/lib/extract/extractBrush';
 
 const initialState = {
-    clicked_element_id: null,
-    // colors: [{}],
-    // colors: null,//new Map(),
-    colorsMap: new Map(),
     idToElementRef: new Map(),
     selectedIDs: [],
+    scrollViewRef: React.createRef(),
+    sparepartsData: {}
 };
 
 const SvgModuleReducer = (state = initialState, action) => {
@@ -15,27 +14,29 @@ const SvgModuleReducer = (state = initialState, action) => {
         case actionTypes.REGISTER_ELEMENTREF_FOR_ID:
             state.idToElementRef.set(action.payload.id, action.payload.elementRef);
             return {...state}   // no need to refresh
-        // return state;
-        case actionTypes.CLICK_ELEMENT:
-            // console.log(state)
-            // const colorsMap = state.colorsMap;
-            // const id = action.payload;
-            // if (colorsMap.has(id)) {
-            //     colorsMap.delete(id)
-            // } else {
-            //     colorsMap.set(id, 'orange')
-            // }
-            //
-            // return {...state, clicked_element_id: action.payload, colorsMap: new Map(colorsMap)};
 
+        case actionTypes.SET_SPAREPARTS_DATA:
+            return {...state, sparepartsData: action.payload}
+
+        case actionTypes.CLICK_ELEMENT:
             const {id} = action.payload;
+
+            const scrollToId = id => {
+                const tableIndex = state.sparepartsData.spareparts.findIndex((sparepart)=>sparepart.set_number==id)
+                if (tableIndex==-1) {
+                    console.log('Nie odnaleziono set_number==', id);
+                    return;
+                }
+                state.scrollViewRef.current.scrollToIndex({index: tableIndex})
+            }
+            scrollToId(id)
+
 
             const msg = 'ELO ELO SvgModuleReducer->CLICK_ELEMENT: ' + id;
             console.log(msg);
-            // console.log(this.props.idToElementRef.map(obj=>obj));
-            for (let key of state.idToElementRef.keys()) {
-                console.log(key)
-            }
+            // for (let key of state.idToElementRef.keys()) {
+            //     console.log(key)
+            // }
 
             let fillColor = '';
             let strokeWidth = 1;

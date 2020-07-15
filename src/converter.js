@@ -1,9 +1,8 @@
 import React from 'react'
 import camelCase from 'camelcase'
 import cssParse from 'css-parse-no-fs'
-import {registerElementRefForId, clickElement} from './actions/SvgModuleActionCreator'
+import {registerElementRefForId} from './actions/SvgModuleActionCreator'
 import {connect} from 'react-redux';
-import {bindActionCreators} from "redux";
 
 import Svg, {
   Circle,
@@ -257,31 +256,13 @@ const TraverseConnected = connect(null, {registerElementRefForId})(Traverse);
 
 
 
-
 export { extractViewbox, getCssRulesForAttr, findApplicableCssProps, addNonCssAttributes }
 
-// export default (dom, cssAst, config, onPress) => {
 const Converter = ({dom, cssAst, config, onPress}) => {
   config = Object.assign({}, config, {
     cssRules: (cssAst && cssAst.stylesheet && cssAst.stylesheet.rules) || []
   })
   return <TraverseConnected markup={dom.documentElement} config={config} i={0} onPress={onPress} />
-  // return traverse(dom.documentElement, config, 0,onPress)
 }
 export default Converter;
-
-
-// const mapStateToProps = (state) => {
-//   const {idToElementRef} = state.SvgModuleReducer;
-//   return {idToElementRef};
-// };
-// const mapDispatchToProps = dispatch =>
-//     bindActionCreators(
-//         {
-//           registerElementRefForId
-//         },
-//         dispatch
-//     );
-// export default connect(mapStateToProps, {clickElement})(Converter);
-
 
