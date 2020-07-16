@@ -15,6 +15,12 @@ export const setSparepartsData = (sparepartsData) => ({
     payload: sparepartsData
 });
 
+export const setSvgViewBox = (viewBox) => ({
+    type: actionTypes.SET_SVG_VIEWBOX,
+    payload: viewBox
+});
+
+
 
 // export const restTimer = (newCounterValue) => {
 //   return {
