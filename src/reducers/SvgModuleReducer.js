@@ -67,8 +67,6 @@ const SvgModuleReducer = (state = initialState, action) => {
                 obj.setNativeProps({stroke: extractBrush(fillColor), strokeWidth: strokeWidth});
                 //focus screen
                 const targetLocation = obj?.props?.d?.split(' ')?.[1]?.split(',');
-                console.log(targetLocation)
-                console.log(state.svgViewBox)
                 state.svgImageZoomRef.current.centerOn({
                     x: state.svgViewBox[2] / 2 - targetLocation[0],
                     y: state.svgViewBox[3] / 2 - targetLocation[1],
