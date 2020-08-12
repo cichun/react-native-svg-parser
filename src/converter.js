@@ -171,6 +171,12 @@ class Traverse extends React.Component {
   constructor(props) {
     super(props);
     this.elementRef = React.createRef();
+    this.myChildrenRefs = [];
+  }
+
+  registerChildrenRef = (ref) => {
+    // console.log('rejestruje ', ref)
+    this.myChildrenRefs.push(ref);
   }
 
   render() {
@@ -201,26 +207,34 @@ class Traverse extends React.Component {
         value: config.viewBox || viewBox.viewBox || '0 0 50 50'
       })
     } else if (tagName === 'g') {
-      // if(idName) {
-      //   attrs.push({
-      //     name: 'onPress',
-      //     value: () => onPress(idName, elementRef)
-      //   })
-      // }
-    } else {
-      // otherwise, if not SVG, check to see if there is CSS to apply.
       const cssPropsResult = findApplicableCssProps(markup, config)
       const additionalProps = addNonCssAttributes(markup, cssPropsResult)
       const className = findProperty(markup, 'class')
 
-      // if(idName && className && className.includes('circle')) {
-      if (idName && className && className.includes('circle')) {
+      if (idName && className && className.includes('group')) {
         additionalProps.push({
           name: 'onPress',
           value: () => onPress(idName, this.elementRef)
         })
         this.props.registerElementRefForId(this.elementRef,idName);
       }
+
+      // add to the known list of total attributes.
+      // attrs = [...attrs, ...cssPropsResult.attrs, ...additionalProps]
+      attrs = [...additionalProps]
+    } else {
+      // otherwise, if not SVG, check to see if there is CSS to apply.
+      const cssPropsResult = findApplicableCssProps(markup, config)
+      const additionalProps = addNonCssAttributes(markup, cssPropsResult)
+      const className = findProperty(markup, 'class')
+
+      // if (idName && className && className.includes('circle')) {
+      //   additionalProps.push({
+      //     name: 'onPress',
+      //     value: () => onPress(idName, this.elementRef)
+      //   })
+      //   this.props.registerElementRefForId(this.elementRef,idName);
+      // }
 
       // add to the known list of total attributes.
       attrs = [...attrs, ...cssPropsResult.attrs, ...additionalProps]
@@ -237,7 +251,7 @@ class Traverse extends React.Component {
     const children = (Elem === Text && markup.childNodes.length === 1)
         ? markup.childNodes[0].data
         : markup.childNodes.length ? Object.values(markup.childNodes).map((child) => {
-          return <TraverseConnected markup={child} config={config} i={i+1} key={i+1+Math.random()} onPress={onPress} />
+          return <TraverseConnected registerChildrenRefFunc={this.registerChildrenRef} markup={child} config={config} i={i+1} key={i+1+Math.random()} onPress={onPress} />
         }).filter((node) => {
           return !!node
         }) : []
@@ -248,11 +262,15 @@ class Traverse extends React.Component {
     })
 
     const k = i + Math.random()
-    return <Elem ref={this.elementRef} testProp={1} {...elemAttributes} key={k}>{children}</Elem>
+    if(this.props.registerChildrenRefFunc) {
+      this.props.registerChildrenRefFunc(this.elementRef);
+    } else {
+    }
+    return <Elem myChildrenRefs={this.myChildrenRefs} ref={this.elementRef} {...elemAttributes} key={k}>{children}</Elem>
   }
 }
 
-const TraverseConnected = connect(null, {registerElementRefForId})(Traverse);
+const TraverseConnected = connect(null, {registerElementRefForId}, null, {forwardRef: true})(Traverse);
 
 
 

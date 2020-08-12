@@ -20,6 +20,10 @@ export const setSvgViewBox = (viewBox) => ({
     payload: viewBox
 });
 
+export const setBottomSheetHeight = (height) => ({
+    type: actionTypes.SET_BOTTOM_SHEET_HEIGHT,
+    payload: height
+});
 
 
 // export const restTimer = (newCounterValue) => {

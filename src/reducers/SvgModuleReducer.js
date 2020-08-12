@@ -1,6 +1,7 @@
 import React from "react";
 import * as actionTypes from '../actions/types';
 import extractBrush from 'react-native-svg/lib/module/lib/extract/extractBrush';
+import Animated from 'react-native-reanimated'
 
 const initialState = {
     idToElementRef: new Map(),
@@ -8,7 +9,11 @@ const initialState = {
     scrollViewRef: React.createRef(),
     svgImageZoomRef: React.createRef(),
     sparepartsData: {},
-    svgViewBox: []
+    svgViewBox: [],
+    bottomSheetRef: React.createRef(),
+    bottomSheetHeaderPosition: new Animated.Value(1),
+    // bottomSheetHeight: Dimensions.get('window').height * (0.8-0.3)
+    bottomSheetHeight: 0
 };
 
 const SvgModuleReducer = (state = initialState, action) => {
@@ -23,17 +28,42 @@ const SvgModuleReducer = (state = initialState, action) => {
         case actionTypes.SET_SVG_VIEWBOX:
             return {...state, svgViewBox: action.payload}
 
+        case actionTypes.SET_BOTTOM_SHEET_HEIGHT:
+            console.log('elo: ',action.payload)
+            return {...state, bottomSheetHeight: action.payload}
+
+
         case actionTypes.CLICK_ELEMENT:
             const {id} = action.payload;
 
+            // const bottomSheetObj = state.bottomSheetRef.current
+            // const headerPosition = state.headerPosition._value
+
+            //focus screen
+            const focusScreenOnObject = (obj) => {
+                let targetLocation = [0, 0];
+                if (obj.constructor.name==="Circle") {
+                    targetLocation = [obj.props.cx, obj.props.cy];
+                } else if (obj.constructor.name==="Path") {
+                    targetLocation = obj?.props?.d?.split(' ')?.[1]?.split(',');
+                }
+                state.svgImageZoomRef.current.centerOn({
+                    x: state.svgViewBox[2] / 2 - targetLocation[0],
+                    y: state.svgViewBox[3] / 2 - targetLocation[1]-state.bottomSheetHeight/2,
+                    scale: 1,
+                    duration: 1000
+                })
+            }
+
             //scroll tableview to row representing selected SVG node
             const scrollToId = id => {
-                const tableIndex = state.sparepartsData.spareparts.findIndex((sparepart) => sparepart.set_number == id)
+                const tableIndex = state.sparepartsData.spareparts.findIndex((sparepart) => 'gsp'+sparepart.set_number == id)
                 if (tableIndex == -1) {
                     console.log('Nie odnaleziono set_number==', id);
                     return;
                 }
                 state.scrollViewRef.current.scrollToIndex({index: tableIndex})
+                // setTimeout(() => { state.scrollViewRef.current.scrollToIndex({animated:true , index: tableIndex, viewPosition: 0.5}) }, 100);
 
                 //dane do chmurki
                 // const sparepart = state.sparepartsData.spareparts[tableIndex];
@@ -44,36 +74,41 @@ const SvgModuleReducer = (state = initialState, action) => {
 
             const msg = 'ELO ELO SvgModuleReducer->CLICK_ELEMENT: ' + id;
             console.log(msg);
-            // for (let key of state.idToElementRef.keys()) {
-            //     console.log(key)
-            // }
 
             let fillColor = '';
             let strokeWidth = 1;
             let newSelectedIDs = state.selectedIDs;
             if (state.selectedIDs.includes(id)) {
-                newSelectedIDs = newSelectedIDs.filter(selID => selID != id);
+                newSelectedIDs = newSelectedIDs.filter(selID => selID != id);    //when multiselect enabled
+                // newSelectedIDs = [];
                 fillColor = extractBrush('black');
                 strokeWidth = 1;
             } else {
-                newSelectedIDs = [...newSelectedIDs, id];
+                newSelectedIDs = [...newSelectedIDs, id];    //when multiselect enabled
+                // newSelectedIDs = [id];
                 fillColor = extractBrush('red');
-                strokeWidth = 3;
+                strokeWidth = 2;
             }
+
 
             const elementRef = state.idToElementRef.get(id);
             if (elementRef) {
                 const obj = elementRef.current;
                 obj.setNativeProps({stroke: extractBrush(fillColor), strokeWidth: strokeWidth});
-                //focus screen
-                const targetLocation = obj?.props?.d?.split(' ')?.[1]?.split(',');
-                state.svgImageZoomRef.current.centerOn({
-                    x: state.svgViewBox[2] / 2 - targetLocation[0],
-                    y: state.svgViewBox[3] / 2 - targetLocation[1],
-                    scale: 1,
-                    duration: 1000
-                })
-                // state.svgImageZoomRef.current.centerOn({x:0, y:0, scale:1, duration:1000})
+
+                for(const child of obj.props.myChildrenRefs) {
+                    const childObj = child.current;
+                    if(childObj.constructor.name==="Text") {
+                        //unfortunately text desapears
+                        // childObj.setNativeProps({fill: extractBrush(fillColor)});
+                    } else {
+                        childObj.setNativeProps({stroke: extractBrush(fillColor), strokeWidth: strokeWidth});
+                    }
+
+                    if(childObj.constructor.name==="Circle") {
+                        focusScreenOnObject(childObj)
+                    }
+                }
             }
             return {...state, selectedIDs: newSelectedIDs};
 
