@@ -29,7 +29,7 @@ const SvgModuleReducer = (state = initialState, action) => {
             return {...state, svgViewBox: action.payload}
 
         case actionTypes.SET_BOTTOM_SHEET_HEIGHT:
-            console.log('elo: ',action.payload)
+            console.log('setting bottom sheet height to: ',action.payload)
             return {...state, bottomSheetHeight: action.payload}
 
 
@@ -42,7 +42,7 @@ const SvgModuleReducer = (state = initialState, action) => {
             //focus screen
             const focusScreenOnObject = (obj) => {
                 let targetLocation = [0, 0];
-                if (obj.constructor.name==="Circle") {
+                if (obj.constructor.name==="Circle" || obj.constructor.name==="AnimatedCircleComponent") {
                     targetLocation = [obj.props.cx, obj.props.cy];
                 } else if (obj.constructor.name==="Path") {
                     targetLocation = obj?.props?.d?.split(' ')?.[1]?.split(',');
@@ -105,7 +105,7 @@ const SvgModuleReducer = (state = initialState, action) => {
                         childObj.setNativeProps({stroke: extractBrush(fillColor), strokeWidth: strokeWidth});
                     }
 
-                    if(childObj.constructor.name==="Circle") {
+                    if(childObj.constructor.name==="Circle" || childObj.constructor.name==="AnimatedCircleComponent") {
                         focusScreenOnObject(childObj)
                     }
                 }

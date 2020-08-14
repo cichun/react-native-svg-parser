@@ -22,9 +22,12 @@ import Svg, {
   Stop,
 } from 'react-native-svg'
 
+import AnimatedCircleComponent from "../../../components/AnimatedCircleComponent";
+
 const mapping = {
   'svg': Svg,
-  'circle': Circle,
+  // 'circle': Circle,
+  'circle': AnimatedCircleComponent,
   'ellipse': Ellipse,
   'g': G,
   'line': Line,
@@ -234,6 +237,13 @@ class Traverse extends React.Component {
       //     value: () => onPress(idName, this.elementRef)
       //   })
       //   this.props.registerElementRefForId(this.elementRef,idName);
+      // }
+
+      // if (idName && className && className.includes('circle')) {
+      //   additionalProps.push({
+      //     name: 'onPress',
+      //     value: () => {console.log('kliknieto kolko');}
+      //   })
       // }
 
       // add to the known list of total attributes.
