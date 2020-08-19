@@ -22,7 +22,7 @@ import Svg, {
   Stop,
 } from 'react-native-svg'
 
-import AnimatedCircleComponent from "../../../components/AnimatedCircleComponent";
+import AnimatedCircleComponent from "./components/AnimatedCircleComponent";
 
 const mapping = {
   'svg': Svg,
