@@ -57,7 +57,7 @@ const SvgModuleReducer = (state = initialState, action) => {
 
             //scroll tableview to row representing selected SVG node
             const scrollToId = id => {
-                const tableIndex = state.sparepartsData.spareparts.findIndex((sparepart) => 'gsp'+sparepart.set_number == id)
+                const tableIndex = state.sparepartsData.findIndex((sparepart) => 'gsp'+sparepart.set_number == id)
                 if (tableIndex == -1) {
                     console.log('Nie odnaleziono set_number==', id);
                     return;
@@ -66,7 +66,7 @@ const SvgModuleReducer = (state = initialState, action) => {
                 // setTimeout(() => { state.scrollViewRef.current.scrollToIndex({animated:true , index: tableIndex, viewPosition: 0.5}) }, 100);
 
                 //dane do chmurki
-                // const sparepart = state.sparepartsData.spareparts[tableIndex];
+                // const sparepart = state.sparepartsData[tableIndex];
                 // console.log(sparepart)
             }
             scrollToId(id)
