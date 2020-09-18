@@ -32,6 +32,8 @@ const SvgModuleReducer = (state = initialState, action) => {
             console.log('setting bottom sheet height to: ',action.payload)
             return {...state, bottomSheetHeight: action.payload}
 
+        case actionTypes.RESET_SELECTED_IDS:
+            return {...state, selectedIDs: []}
 
         case actionTypes.CLICK_ELEMENT:
             const {id} = action.payload;

@@ -5,6 +5,10 @@ export const clickElement = (id) => ({
     payload: {id},
 });
 
+export const resetSelectedIDs = () => ({
+    type: actionTypes.RESET_SELECTED_IDS,
+})
+
 export const registerElementRefForId = (elementRef, id) => ({
     type: actionTypes.REGISTER_ELEMENTREF_FOR_ID,
     payload: {elementRef, id}
