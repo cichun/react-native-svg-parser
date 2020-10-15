@@ -171,6 +171,9 @@ function findProperty (markup, propertyName) {
 }
 
 class Traverse extends React.Component {
+
+  static pathIdCount=0;
+
   constructor(props) {
     super(props);
     this.elementRef = React.createRef();
@@ -189,7 +192,7 @@ class Traverse extends React.Component {
       return null
     }
     const tagName = markup.nodeName
-    const idName = findId(markup)
+    let idName = findId(markup)
     if (idName && config.omitById && config.omitById.includes(idName)) {
       return null
     }
@@ -209,12 +212,16 @@ class Traverse extends React.Component {
         name: 'viewBox',
         value: config.viewBox || viewBox.viewBox || '0 0 50 50'
       })
-    } else if (tagName === 'g') {
+    } else if (tagName === 'path') {
       const cssPropsResult = findApplicableCssProps(markup, config)
       const additionalProps = addNonCssAttributes(markup, cssPropsResult)
       const className = findProperty(markup, 'class')
 
-      if (idName && className && className.includes('group')) {
+      if(!idName) {
+        idName = Traverse.pathIdCount++;
+      }
+
+      if (idName) {
         additionalProps.push({
           name: 'onPress',
           value: () => onPress(idName, this.elementRef)
@@ -223,8 +230,8 @@ class Traverse extends React.Component {
       }
 
       // add to the known list of total attributes.
-      // attrs = [...attrs, ...cssPropsResult.attrs, ...additionalProps]
-      attrs = [...additionalProps]
+      attrs = [...attrs, ...cssPropsResult.attrs, ...additionalProps]
+      // attrs = [...additionalProps]
     } else {
       // otherwise, if not SVG, check to see if there is CSS to apply.
       const cssPropsResult = findApplicableCssProps(markup, config)

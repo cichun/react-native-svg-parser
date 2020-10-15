@@ -38,41 +38,6 @@ const SvgModuleReducer = (state = initialState, action) => {
         case actionTypes.CLICK_ELEMENT:
             const {id} = action.payload;
 
-            // const bottomSheetObj = state.bottomSheetRef.current
-            // const headerPosition = state.headerPosition._value
-
-            //focus screen
-            const focusScreenOnObject = (obj) => {
-                let targetLocation = [0, 0];
-                if (obj.constructor.name==="Circle" || obj.constructor.name==="AnimatedCircleComponent") {
-                    targetLocation = [obj.props.cx, obj.props.cy];
-                } else if (obj.constructor.name==="Path") {
-                    targetLocation = obj?.props?.d?.split(' ')?.[1]?.split(',');
-                }
-                state.svgImageZoomRef.current.centerOn({
-                    x: state.svgViewBox[2] / 2 - targetLocation[0],
-                    y: state.svgViewBox[3] / 2 - targetLocation[1]-state.bottomSheetHeight/2,
-                    scale: 1,
-                    duration: 1000
-                })
-            }
-
-            //scroll tableview to row representing selected SVG node
-            const scrollToId = id => {
-                const tableIndex = state.sparepartsData.findIndex((sparepart) => 'gsp'+sparepart.set_number == id)
-                if (tableIndex == -1) {
-                    console.log('Nie odnaleziono set_number==', id);
-                    return;
-                }
-                state.scrollViewRef.current.scrollToIndex({index: tableIndex})
-                // setTimeout(() => { state.scrollViewRef.current.scrollToIndex({animated:true , index: tableIndex, viewPosition: 0.5}) }, 100);
-
-                //dane do chmurki
-                // const sparepart = state.sparepartsData[tableIndex];
-                // console.log(sparepart)
-            }
-            scrollToId(id)
-
 
             const msg = 'ELO ELO SvgModuleReducer->CLICK_ELEMENT: ' + id;
             console.log(msg);
@@ -83,7 +48,7 @@ const SvgModuleReducer = (state = initialState, action) => {
             if (state.selectedIDs.includes(id)) {
                 newSelectedIDs = newSelectedIDs.filter(selID => selID != id);    //when multiselect enabled
                 // newSelectedIDs = [];
-                fillColor = extractBrush('black');
+                fillColor = null;
                 strokeWidth = 1;
             } else {
                 newSelectedIDs = [...newSelectedIDs, id];    //when multiselect enabled
@@ -96,7 +61,8 @@ const SvgModuleReducer = (state = initialState, action) => {
             const elementRef = state.idToElementRef.get(id);
             if (elementRef) {
                 const obj = elementRef.current;
-                obj.setNativeProps({stroke: extractBrush(fillColor), strokeWidth: strokeWidth});
+                // obj.setNativeProps({stroke: extractBrush(fillColor), strokeWidth: strokeWidth});
+                obj.setNativeProps({fill: extractBrush(fillColor)});
 
                 for(const child of obj.props.myChildrenRefs) {
                     const childObj = child.current;
@@ -104,7 +70,8 @@ const SvgModuleReducer = (state = initialState, action) => {
                         //unfortunately text desapears
                         // childObj.setNativeProps({fill: extractBrush(fillColor)});
                     } else {
-                        childObj.setNativeProps({stroke: extractBrush(fillColor), strokeWidth: strokeWidth});
+                        // childObj.setNativeProps({stroke: extractBrush(fillColor), strokeWidth: strokeWidth});
+                        childObj.setNativeProps({fill: extractBrush(fillColor)});
                     }
 
                     if(childObj.constructor.name==="Circle" || childObj.constructor.name==="AnimatedCircleComponent") {
