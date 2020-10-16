@@ -26,8 +26,8 @@ import AnimatedCircleComponent from "./components/AnimatedCircleComponent";
 
 const mapping = {
   'svg': Svg,
-  // 'circle': Circle,
-  'circle': AnimatedCircleComponent,
+  'circle': Circle,
+  // 'circle': AnimatedCircleComponent,
   'ellipse': Ellipse,
   'g': G,
   'line': Line,
@@ -52,8 +52,9 @@ function extractViewbox (markup) {
 
   const vbSplits = viewBox ? viewBox.value.split(' ') : false
   if (!vbSplits) {
-    return {}
+    return null
   }
+
 
   return {
     // width: `${vbSplits[2]}`,
@@ -62,6 +63,18 @@ function extractViewbox (markup) {
     height:'100%',
     viewBox: viewBox.value
   }
+}
+
+function getGlobalViewbox(dom) {
+  for(let childNo=0; childNo<dom.childNodes.length; childNo++) {
+    const child = dom.childNodes[childNo];
+    const viewBox = extractViewbox(child);
+    console.log(viewBox);
+    if(viewBox) {
+      return viewBox
+    }
+  }
+  return null;
 }
 
 function getRulesForClass(cssRules, className) {
@@ -192,6 +205,7 @@ class Traverse extends React.Component {
       return null
     }
     const tagName = markup.nodeName
+    // console.log(tagName)
     let idName = findId(markup)
     if (idName && config.omitById && config.omitById.includes(idName)) {
       return null
@@ -291,7 +305,7 @@ const TraverseConnected = connect(null, {registerElementRefForId}, null, {forwar
 
 
 
-export { extractViewbox, getCssRulesForAttr, findApplicableCssProps, addNonCssAttributes }
+export { extractViewbox, getGlobalViewbox, getCssRulesForAttr, findApplicableCssProps, addNonCssAttributes }
 
 const Converter = ({dom, cssAst, config, onPress}) => {
   config = Object.assign({}, config, {
