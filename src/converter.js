@@ -114,9 +114,15 @@ function addNonCssAttributes (markup, cssPropsResult) {
 
     //eq. xlixnk:href - name='xlixnk:href', localName='href' - so we should use localName
     // const propertyName = camelCase(attr.name)
-    const propertyName = camelCase(attr.localName)
+    let propertyName = camelCase(attr.localName)
     if (propertyName === 'class' || propertyName === 'id') {
       return
+    }
+
+    //hardcore fix to replace dominantBaseline prop which doesnt work
+    // with alignmentBaseline which is OK in Text component
+    if(propertyName==='dominantBaseline') {
+      propertyName='alignmentBaseline'
     }
 
     if (cssPropsResult.cssProps.indexOf(propertyName) > -1) {
@@ -248,6 +254,7 @@ class Traverse extends React.Component {
 
       // add to the known list of total attributes.
       attrs = [...attrs, ...cssPropsResult.attrs, ...additionalProps]
+
     }
 
     // map the tag to an element.
