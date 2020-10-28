@@ -26,8 +26,8 @@ import AnimatedCircleComponent from "./components/AnimatedCircleComponent";
 
 const mapping = {
   'svg': Svg,
-  // 'circle': Circle,
-  'circle': AnimatedCircleComponent,
+  'circle': Circle,
+  // 'circle': AnimatedCircleComponent,
   'ellipse': Ellipse,
   'g': G,
   'line': Line,

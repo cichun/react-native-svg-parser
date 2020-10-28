@@ -8,7 +8,7 @@ const initialState = {
     selectedIDs: [],
     scrollViewRef: React.createRef(),
     svgImageZoomRef: React.createRef(),
-    sparepartsData: {},
+    sparepartsData: [],
     svgViewBox: [],
     bottomSheetRef: React.createRef(),
     bottomSheetHeaderPosition: new Animated.Value(1),
@@ -59,9 +59,17 @@ const SvgModuleReducer = (state = initialState, action) => {
 
             //scroll tableview to row representing selected SVG node
             const scrollToId = id => {
+                if(!state.sparepartsData) {
+                    console.log('brak state.sparepartsData, nie wykonuje scrollToId');
+                    return;
+                }
                 const tableIndex = state.sparepartsData.findIndex((sparepart) => 'gsp'+sparepart.set_number == id)
                 if (tableIndex == -1) {
                     console.log('Nie odnaleziono set_number==', id);
+                    return;
+                }
+                if( !state.scrollViewRef.current ) {
+                    console.log('Nie ustawione state.scrollViewRef w scrollToId, nie przewijam tabelki ')
                     return;
                 }
                 state.scrollViewRef.current.scrollToIndex({index: tableIndex})
@@ -94,17 +102,17 @@ const SvgModuleReducer = (state = initialState, action) => {
 
 
             const elementRef = state.idToElementRef.get(id);
-            if (elementRef) {
+            if (elementRef && elementRef.current) {
                 const obj = elementRef.current;
-                obj.setNativeProps({stroke: extractBrush(fillColor), strokeWidth: strokeWidth});
+                obj.setNativeProps({stroke: fillColor, strokeWidth: strokeWidth});
 
                 for(const child of obj.props.myChildrenRefs) {
                     const childObj = child.current;
                     if(childObj.constructor.name==="Text") {
                         //unfortunately text desapears
-                        // childObj.setNativeProps({fill: extractBrush(fillColor)});
+                        // childObj.setNativeProps({fill: fillColor});
                     } else {
-                        childObj.setNativeProps({stroke: extractBrush(fillColor), strokeWidth: strokeWidth});
+                        childObj.setNativeProps({stroke: fillColor, strokeWidth: strokeWidth});
                     }
 
                     if(childObj.constructor.name==="Circle" || childObj.constructor.name==="AnimatedCircleComponent") {

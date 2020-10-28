@@ -58,12 +58,13 @@ export default class AnimatedCircleComponent extends Circle {
                 Animated.timing(this.state.circleRadius, {
                     toValue: (this.props.r * 2),
                     easing: Easing.bounce,
-                    useNativeDriver: true
+                    useNativeDriver: true,
+                    duration: 500,
                 }),
                 Animated.timing(this.state.fillValue, {
                     toValue: 0,
-                    useNativeDriver:true
-                    // duration: 500,
+                    useNativeDriver:true,
+                    duration: 500,
                     // easing: Easing.bounce
                 })
             ]),
@@ -72,12 +73,13 @@ export default class AnimatedCircleComponent extends Circle {
                 Animated.timing(this.state.circleRadius, {
                     toValue: (this.props.r),
                     easing: Easing.bounce,
-                    useNativeDriver:true
+                    useNativeDriver:true,
+                    duration: 500,
                 }),
                 Animated.timing(this.state.fillValue, {
                     toValue: 1,
-                    useNativeDriver:true
-                    // duration: 500,
+                    useNativeDriver:true,
+                    duration: 500,
                     // easing: Easing.bounce
                 })
             ])
