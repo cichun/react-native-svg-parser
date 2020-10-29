@@ -2,6 +2,8 @@ import React from "react";
 import * as actionTypes from '../actions/types';
 import extractBrush from 'react-native-svg/lib/module/lib/extract/extractBrush';
 import Animated from 'react-native-reanimated'
+import * as SVG from 'react-native-svg';
+import AnimatedCircleComponent from '../components/AnimatedCircleComponent';
 
 const initialState = {
     idToElementRef: new Map(),
@@ -44,9 +46,9 @@ const SvgModuleReducer = (state = initialState, action) => {
             //focus screen
             const focusScreenOnObject = (obj) => {
                 let targetLocation = [0, 0];
-                if (obj.constructor.name==="Circle" || obj.constructor.name==="AnimatedCircleComponent") {
+                if (obj instanceof SVG.Circle || obj instanceof AnimatedCircleComponent) {
                     targetLocation = [obj.props.cx, obj.props.cy];
-                } else if (obj.constructor.name==="Path") {
+                } else if (obj instanceof SVG.Path) {
                     targetLocation = obj?.props?.d?.split(' ')?.[1]?.split(',');
                 }
                 state.svgImageZoomRef.current.centerOn({
@@ -108,14 +110,14 @@ const SvgModuleReducer = (state = initialState, action) => {
 
                 for(const child of obj.props.myChildrenRefs) {
                     const childObj = child.current;
-                    if(childObj.constructor.name==="Text") {
-                        //unfortunately text desapears
+                    if(childObj instanceof SVG.Text) {
+                        //unfortunately text disapears
                         // childObj.setNativeProps({fill: fillColor});
                     } else {
                         childObj.setNativeProps({stroke: fillColor, strokeWidth: strokeWidth});
                     }
 
-                    if(childObj.constructor.name==="Circle" || childObj.constructor.name==="AnimatedCircleComponent") {
+                    if(childObj instanceof SVG.Circle || childObj instanceof AnimatedCircleComponent) {
                         focusScreenOnObject(childObj)
                     }
                 }
